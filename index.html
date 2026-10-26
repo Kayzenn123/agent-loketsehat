@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LOKETSEHAT — Papan Pengumuman Puskesmas: Jadwal Poli, Antrean &amp; Imunisasi</title>
+<meta name="description" content="Papan pengumuman puskesmas: jadwal 5 poli Senin–Sabtu, ambil nomor antrean 3 loket, jadwal imunisasi bayi 0–24 bulan, dan stok obat. Semua contoh, bukan jadwal resmi.">
+<meta name="theme-color" content="#e8f3e4">
+<link rel="canonical" href="https://kayzenn123.github.io/agent-loketsehat/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LOKETSEHAT — Papan Pengumuman Puskesmas">
+<meta property="og:description" content="Jadwal poli, nomor antrean, imunisasi bayi, stok obat — satu papan, tanpa antre tanya-tanya.">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preload" href="fonts/teachers-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/biryani-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#konten">Lompat ke konten</a>
+<div class="spotlight" id="spotlight" aria-hidden="true"></div>
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+
+<header class="papan-atas">
+  <p class="label-kecil">papan pengumuman &middot; puskesmas &middot; <span id="tanggal-hari">hari ini</span></p>
+  <div class="baris-atas">
+    <p class="status-buka" id="status-buka" role="status" aria-live="polite">cek jam buka&hellip;</p>
+    <div class="tombol-atas">
+      <button type="button" id="tombol-jeda" aria-pressed="false">jeda gerak</button>
+      <button type="button" id="tombol-gerak" aria-pressed="true">gerak: nyala</button>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true" id="marquee-atas">
+  <div class="marquee-track" data-kecepatan="1"><span class="marquee-isi" id="marquee-isi-atas"></span><span class="marquee-isi" id="marquee-isi-atas-2"></span></div>
+</div>
+
+<main id="konten">
+  <!-- HERO: papan stiker -->
+  <section class="hero" id="hero" aria-labelledby="judul-utama">
+    <div class="hero-dalam" id="hero-dalam">
+      <p class="kicker">selamat datang di loket, nak &mdash; jangan telat, ya</p>
+      <h1 id="judul-utama" class="judul-raksasa" data-wght>LOKET&shy;SEHAT</h1>
+      <p class="subjudul">Jadwal poli, nomor antrean, imunisasi bayi, dan stok obat &mdash; semua ditempel di satu papan. Seret stikernya, ambil nomormu, pulang sehat.</p>
+      <div class="karcis-buka" id="karcis-buka">
+        <div class="karcis-isi">
+          <span class="karcis-label">karcis hari ini</span>
+          <strong id="karcis-hari">Senin</strong>
+          <span id="karcis-jam">07.30&ndash;11.30</span>
+          <span class="karcis-nomor" id="karcis-nomor">LOKET-2026-000</span>
+        </div>
+        <div class="karcis-lubang" aria-hidden="true"></div>
+      </div>
+      <nav class="nav-stiker" aria-label="jalan pintas papan">
+        <a class="stiker-nav" href="#jadwal" style="--rot:-3deg">jadwal poli</a>
+        <a class="stiker-nav" href="#antrean" style="--rot:2deg">ambil nomor</a>
+        <a class="stiker-nav" href="#imunisasi" style="--rot:-2deg">imunisasi</a>
+        <a class="stiker-nav" href="#obat" style="--rot:3deg">stok obat</a>
+      </nav>
+    </div>
+    <div class="stiker-area" id="stiker-area" aria-label="papan pengumuman: stiker bisa diseret">
+      <p class="label-kecil stiker-judul">ditempel bu suster &mdash; seret stikernya, nak</p>
+      <!-- stiker diisi JS -->
+    </div>
+  </section>
+
+  <!-- JADWAL POLI -->
+  <section class="seksi" id="jadwal" aria-labelledby="judul-jadwal">
+    <h2 class="judul-seksi" data-wght>jadwal poli</h2>
+    <p class="seksi-teks">Lima poli, enam hari. Pilih harinya, Bu Suster kasih tahu siapa dokternya dan jam berapa. Semua jadwal di bawah ini <strong>CONTOH</strong> &mdash; bukan jadwal resmi puskesmas mana pun.</p>
+    <div class="filter-hari" id="filter-hari" role="group" aria-label="pilih hari"></div>
+    <label class="cari-wrap" for="cari-poli">cari poli atau dokter
+      <input type="search" id="cari-poli" placeholder="misal: gigi, ratna, kia&hellip;" autocomplete="off">
+    </label>
+    <p class="empty" id="empty-jadwal" hidden>Yah, tidak ada poli yang cocok, Nak. Coba kata lain, atau ganti harinya.</p>
+    <div class="grid-poli" id="grid-poli"></div>
+    <div class="detail-poli" id="detail-poli" hidden>
+      <button type="button" class="tutup-detail" id="tutup-detail" aria-label="tutup detail poli">tutup &times;</button>
+      <div id="isi-detail"></div>
+    </div>
+  </section>
+
+  <!-- ANTREAN -->
+  <section class="seksi seksi-antrean" id="antrean" aria-labelledby="judul-antrean">
+    <div class="pan-wrap" id="pan-wrap">
+      <h2 class="judul-seksi" data-wght>loket antrean</h2>
+      <p class="seksi-teks">Tiga loket, tiga nomor berjalan. Ambil nomormu di sini, simpan baik-baik, jangan hilang. Estimasi tunggu dihitung 7 menit per orang di depanmu.</p>
+      <div class="loket-row" id="loket-row">
+        <!-- loket diisi JS -->
+      </div>
+      <div class="tiket" id="tiket" hidden>
+        <p class="label-kecil">karcismu, nak &mdash; simpan baik-baik</p>
+        <div class="tiket-isi" id="tiket-isi"></div>
+        <div class="tiket-aksi">
+          <button type="button" id="salin-wa">salin pesan wa</button>
+          <button type="button" id="ekspor-json">ekspor json</button>
+          <button type="button" id="tiket-baru">ambil nomor lagi</button>
+        </div>
+        <p class="tiket-pesan" id="tiket-pesan" role="status" aria-live="polite"></p>
+      </div>
+      <div class="riwayat">
+        <h3>riwayat nomormu</h3>
+        <p class="empty" id="empty-riwayat">Belum ada nomor yang diambil di perangkat ini.</p>
+        <ul id="daftar-riwayat"></ul>
+        <button type="button" id="hapus-riwayat">hapus riwayat</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMUNISASI -->
+  <section class="seksi" id="imunisasi" aria-labelledby="judul-imunisasi">
+    <h2 class="judul-seksi" data-wght>imunisasi bayi</h2>
+    <p class="seksi-teks">Delapan vaksin dari lahir sampai 9 bulan. Ketuk vaksinnya untuk lihat usia pemberiannya. Jadwal ini <strong>CONTOH</strong> ringkas &mdash; jadwal resmi ikut buku KIA dan arahan bidan.</p>
+    <ol class="garis-usia" id="garis-usia"></ol>
+    <div class="detail-vaksin" id="detail-vaksin" hidden>
+      <button type="button" class="tutup-detail" id="tutup-vaksin" aria-label="tutup detail vaksin">tutup &times;</button>
+      <div id="isi-vaksin"></div>
+    </div>
+  </section>
+
+  <!-- OBAT -->
+  <section class="seksi" id="obat" aria-labelledby="judul-obat">
+    <h2 class="judul-seksi" data-wght>stok obat</h2>
+    <p class="seksi-teks">Sepuluh obat esensial yang biasa tersedia di loket obat. Status stok ini <strong>CONTOH</strong> &mdash; tanya apoteker untuk kepastian hari ini.</p>
+    <div class="grid-obat" id="grid-obat"></div>
+  </section>
+</main>
+
+<div class="marquee marquee-bawah" aria-hidden="true" id="marquee-bawah">
+  <div class="marquee-track marquee-balik" data-kecepatan="-1"><span class="marquee-isi" id="marquee-isi-bawah"></span><span class="marquee-isi" id="marquee-isi-bawah-2"></span></div>
+</div>
+
+<footer class="kaki">
+  <p class="stempel" id="stempel-akhir" aria-hidden="true">sehat selalu</p>
+  <p><strong>LOKETSEHAT</strong> &mdash; papan pengumuman puskesmas, Hari 17 &mdash; 30 Days of Code.</p>
+  <p>Font: Teachers (variable), Biryani, Source Code Pro &mdash; Fontsource, lisensi OFL. Ikon pixel-art digambar sendiri. GSAP 3.12.5 di-host lokal.</p>
+  <p>Semua nama, jadwal, harga, dan stok di situs ini <strong>CONTOH fiktif</strong>, bukan data resmi puskesmas mana pun. Kalau butuh kepastian, datang langsung atau telepon puskesmas terdekat.</p>
+  <p class="kaki-teks">Dibuat Bu Suster (dan satu agen yang rajin) &mdash; jangan lupa bawa KTP &amp; kartu BPJS.</p>
+</footer>
+
+<div class="stempel-jatuh" id="stempel-jatuh" aria-hidden="true">sehat selalu</div>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

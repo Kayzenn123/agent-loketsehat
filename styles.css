@@ -1,0 +1,346 @@
+/* LOKETSEHAT — papan pengumuman puskesmas. Tanpa shadow, tanpa gradient. */
+@layer token, dasar, komponen, gerak;
+
+@layer token {
+  :root {
+    --bg: oklch(0.95 0.045 136);
+    --surface: oklch(0.90 0.040 136);
+    --surface-2: oklch(0.93 0.030 136);
+    --text: oklch(0.20 0.040 136);
+    --muted: oklch(0.45 0.030 136);
+    --accent: oklch(0.61 0.190 166);
+    --accent-text: oklch(0.42 0.155 166);
+    --accent-2: oklch(0.64 0.169 106);
+    --pop: oklch(0.62 0.220 333);
+    --garis: oklch(0.20 0.040 136);
+    --kertas: oklch(0.97 0.020 136);
+    --fs-s: 1rem;
+    --fs-m: 1.5rem;
+    --fs-xl: clamp(3rem, 12vw, 9.375rem);
+    --radius: 4px;
+  }
+  @font-face {
+    font-family: "Teachers";
+    src: url("fonts/teachers-variable.woff2") format("woff2-variations");
+    font-weight: 400 800;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Biryani";
+    src: url("fonts/biryani-400.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Biryani";
+    src: url("fonts/biryani-700.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Source Code Pro";
+    src: url("fonts/source-code-pro-400.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Source Code Pro";
+    src: url("fonts/source-code-pro-700.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+  }
+}
+
+@layer dasar {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Ccircle cx='2' cy='2' r='1.4' fill='%23000' fill-opacity='0.05'/%3E%3C/svg%3E");
+    color: var(--text);
+    font-family: "Biryani", system-ui, sans-serif;
+    font-size: var(--fs-s);
+    line-height: 1.6;
+    overflow-x: clip;
+  }
+  [hidden] { display: none !important; }
+  h1, h2, h3 { font-family: "Teachers", serif; line-height: 1.05; margin: 0; }
+  p { margin: 0 0 0.75rem; }
+  a { color: var(--accent-text); }
+  button, input { font: inherit; color: inherit; }
+  button {
+    min-height: 44px; min-width: 44px;
+    border: 2px solid var(--garis);
+    background: var(--kertas);
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  button:hover { background: var(--accent-2); }
+  button:active { transform: translateY(2px); }
+  :focus-visible { outline: 3px solid var(--pop); outline-offset: 2px; }
+  .skip-link {
+    position: absolute; left: 0.5rem; top: -4rem;
+    background: var(--text); color: var(--bg);
+    padding: 0.75rem 1rem; z-index: 60; border-radius: var(--radius);
+  }
+  .skip-link:focus { top: 0.5rem; }
+  .label-kecil {
+    font-family: "Source Code Pro", monospace;
+    font-size: 0.8rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .empty { color: var(--muted); border: 2px dashed var(--muted); padding: 1rem; border-radius: var(--radius); }
+  .spotlight {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: radial-gradient(circle 180px at var(--mx, 50%) var(--my, 50%), oklch(0.99 0.01 136 / 0.55), transparent 70%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  body.spot-on .spotlight { opacity: 1; }
+  @media (pointer: coarse) { .spotlight { display: none; } }
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; pointer-events: none;
+    background: var(--accent); transform: scaleY(0); transform-origin: top;
+  }
+}
+
+@layer komponen {
+  .papan-atas { padding: 1rem 1rem 0.5rem; max-width: 80rem; margin: 0 auto; }
+  .baris-atas { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; }
+  .status-buka {
+    font-family: "Source Code Pro", monospace; font-weight: 700;
+    border: 2px solid var(--garis); background: var(--kertas);
+    padding: 0.5rem 0.75rem; border-radius: var(--radius); margin: 0;
+  }
+  .status-buka.tutup { background: var(--pop); color: #fff; border-color: var(--pop); }
+  .tombol-atas { display: flex; gap: 0.5rem; }
+
+  .marquee { overflow: hidden; border-block: 2px solid var(--garis); background: var(--surface); }
+  .marquee-track { display: flex; width: max-content; will-change: transform; }
+  .marquee-isi {
+    display: inline-flex; align-items: center; gap: 1.5rem;
+    padding: 0.5rem 0.75rem; white-space: nowrap;
+    font-family: "Source Code Pro", monospace; font-weight: 700; font-size: 0.95rem;
+  }
+  .marquee-isi svg { width: 20px; height: 20px; flex: none; }
+  .marquee-bawah { background: var(--accent-2); }
+  .marquee.jeda .marquee-track { animation-play-state: paused; }
+
+  main { max-width: 80rem; margin: 0 auto; padding: 0 1rem; }
+  .seksi { padding: 3rem 0; border-top: 3px solid var(--garis); }
+  .judul-seksi {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-variation-settings: "wght" 400;
+    margin-bottom: 0.5rem;
+  }
+  .seksi-teks { max-width: 44rem; color: var(--muted); }
+  .seksi-teks strong { color: var(--pop); }
+
+  /* HERO */
+  .hero { padding: 2rem 0 3rem; }
+  .hero-dalam { text-align: left; }
+  .kicker { font-family: "Source Code Pro", monospace; font-weight: 700; color: var(--accent-text); }
+  .judul-raksasa {
+    font-size: var(--fs-xl);
+    font-variation-settings: "wght" 400;
+    letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+  }
+  .subjudul { font-size: var(--fs-m); max-width: 40rem; line-height: 1.4; }
+  .karcis-buka {
+    display: flex; border: 2px solid var(--garis); background: var(--kertas);
+    border-radius: var(--radius); max-width: 26rem; margin: 1.5rem 0;
+    transform: rotate(-1.5deg);
+  }
+  .karcis-isi { display: grid; gap: 0.1rem; padding: 1rem; flex: 1; }
+  .karcis-label { font-family: "Source Code Pro", monospace; font-size: 0.8rem; text-transform: uppercase; color: var(--muted); }
+  .karcis-isi strong { font-family: "Teachers", serif; font-size: 2rem; }
+  .karcis-nomor { font-family: "Source Code Pro", monospace; font-weight: 700; color: var(--accent-text); }
+  .karcis-lubang {
+    width: 2.5rem; flex: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='40'%3E%3Ccircle cx='5' cy='6' r='3' fill='%23000' fill-opacity='0.35'/%3E%3Ccircle cx='5' cy='20' r='3' fill='%23000' fill-opacity='0.35'/%3E%3Ccircle cx='5' cy='34' r='3' fill='%23000' fill-opacity='0.35'/%3E%3C/svg%3E");
+    background-repeat: repeat-y; background-position: center;
+    border-left: 2px dashed var(--muted);
+  }
+  .nav-stiker { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+  .stiker-nav {
+    display: inline-block; padding: 0.75rem 1.25rem;
+    background: var(--accent-2); color: var(--text); font-weight: 700;
+    border: 2px solid var(--garis); border-radius: var(--radius);
+    text-decoration: none; transform: rotate(var(--rot, 0deg));
+    min-height: 44px;
+  }
+  .stiker-nav:nth-child(2) { background: var(--kertas); }
+  .stiker-nav:nth-child(3) { background: var(--pop); color: #fff; }
+  .stiker-nav:nth-child(4) { background: var(--surface-2); }
+  .stiker-nav:hover { transform: rotate(0deg) scale(1.05); }
+
+  .stiker-area {
+    position: relative; min-height: 44rem; margin-top: 2rem;
+    border: 2px dashed var(--muted); border-radius: var(--radius);
+    background: var(--surface); overflow: hidden; touch-action: pan-y;
+  }
+  .stiker-judul { position: relative; z-index: 1; display: block; padding: 0.75rem 0.75rem 0; margin: 0; }
+  .stiker {
+    position: absolute; width: 10.5rem; padding: 0.75rem;
+    background: var(--kertas); border: 2px solid var(--garis);
+    border-radius: var(--radius); cursor: grab; user-select: none;
+    transform: rotate(var(--rot, 0deg));
+    font-size: 0.95rem; line-height: 1.45;
+  }
+  @media (min-width: 48rem) { .stiker { width: 12rem; } }
+  .stiker:active { cursor: grabbing; }
+  .stiker strong { display: block; font-family: "Teachers", serif; font-size: 1.25rem; }
+  .stiker .stiker-ikon { display: block; margin-bottom: 0.25rem; }
+  .stiker .stiker-ikon svg { width: 28px; height: 28px; }
+  .stiker:nth-child(odd) { background: var(--accent-2); }
+
+  /* JADWAL */
+  .filter-hari { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .filter-hari button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+  .cari-wrap { display: grid; gap: 0.25rem; font-weight: 700; max-width: 26rem; margin-bottom: 1rem; }
+  .cari-wrap input {
+    min-height: 44px; font-size: 16px; padding: 0.5rem 0.75rem;
+    border: 2px solid var(--garis); border-radius: var(--radius); background: var(--kertas);
+  }
+  .grid-poli { display: grid; gap: 1rem; }
+  @media (min-width: 48rem) { .grid-poli { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .grid-poli { grid-template-columns: repeat(3, 1fr); } }
+  .kartu-poli {
+    border: 2px solid var(--garis); background: var(--kertas);
+    border-radius: var(--radius); padding: 1rem; text-align: left;
+    display: grid; gap: 0.35rem; min-height: 44px;
+  }
+  .kartu-poli:hover { background: var(--surface-2); }
+  .kartu-poli .ikon-poli svg { width: 32px; height: 32px; }
+  .kartu-poli h3 { font-size: 1.75rem; }
+  .kartu-poli .jam { font-family: "Source Code Pro", monospace; font-weight: 700; color: var(--accent-text); }
+  .kartu-poli .kuota { font-size: 0.9rem; color: var(--muted); }
+  .kartu-poli .dokter { font-weight: 700; }
+  .detail-poli, .detail-vaksin {
+    margin-top: 1rem; border: 3px solid var(--pop); background: var(--kertas);
+    border-radius: var(--radius); padding: 1.25rem; position: relative;
+  }
+  .tutup-detail { position: absolute; top: 0.5rem; right: 0.5rem; }
+  .detail-poli h3, .detail-vaksin h3 { font-size: 2rem; margin-bottom: 0.5rem; padding-right: 4rem; }
+
+  /* ANTREAN */
+  .seksi-antrean { background: var(--surface); margin-inline: -1rem; padding-inline: 1rem; }
+  .loket-row { display: grid; gap: 1rem; margin-top: 1rem; }
+  @media (min-width: 48rem) { .loket-row { grid-template-columns: repeat(3, 1fr); } }
+  .loket {
+    border: 2px solid var(--garis); background: var(--kertas);
+    border-radius: var(--radius); padding: 1rem; text-align: center;
+  }
+  .loket .huruf {
+    font-family: "Teachers", serif; font-size: 3rem; line-height: 1;
+    display: inline-block; width: 4.5rem; height: 4.5rem; line-height: 4.5rem;
+    border: 3px solid var(--garis); border-radius: 50%; background: var(--accent-2);
+  }
+  .loket h3 { font-size: 1.5rem; margin: 0.5rem 0 0.25rem; }
+  .nomor-besar {
+    font-family: "Source Code Pro", monospace; font-weight: 700;
+    font-size: 3rem; line-height: 1.1; color: var(--accent-text);
+  }
+  .loket .estimasi { color: var(--muted); font-size: 0.9rem; }
+  .loket .tombol-loket { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-top: 0.75rem; }
+  .tombol-ambil { background: var(--text); color: var(--bg); }
+  .tombol-ambil:hover { background: var(--accent-text); }
+  .tiket {
+    margin-top: 1.5rem; border: 2px solid var(--garis); background: var(--kertas);
+    border-radius: var(--radius); padding: 1rem; max-width: 32rem;
+    transform: rotate(-1deg);
+  }
+  .tiket-isi { font-family: "Source Code Pro", monospace; font-size: 1.05rem; display: grid; gap: 0.2rem; }
+  .tiket-isi .no-tiket { font-size: 2rem; font-weight: 700; color: var(--accent-text); }
+  .tiket-isi .cap { color: var(--pop); font-weight: 700; text-transform: uppercase; }
+  .tiket-aksi { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .tiket-pesan { color: var(--accent-text); font-weight: 700; margin: 0.5rem 0 0; }
+  .riwayat { margin-top: 1.5rem; }
+  .riwayat h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  #daftar-riwayat { list-style: none; padding: 0; margin: 0 0 0.75rem; display: grid; gap: 0.4rem; }
+  #daftar-riwayat li {
+    font-family: "Source Code Pro", monospace; background: var(--kertas);
+    border: 2px solid var(--garis); border-radius: var(--radius); padding: 0.5rem 0.75rem;
+  }
+
+  /* IMUNISASI */
+  .garis-usia { list-style: none; padding: 0; margin: 1rem 0; display: grid; gap: 0.75rem; position: relative; }
+  .garis-usia::before {
+    content: ""; position: absolute; left: 1.1rem; top: 0.5rem; bottom: 0.5rem;
+    border-left: 3px dashed var(--accent);
+  }
+  .vaksin {
+    position: relative; display: grid; grid-template-columns: 2.25rem 1fr; gap: 0.75rem;
+    align-items: start; text-align: left; background: none; border: none; padding: 0; cursor: pointer;
+  }
+  .vaksin .titik {
+    width: 2.25rem; height: 2.25rem; border: 2px solid var(--garis); border-radius: 50%;
+    background: var(--accent-2); font-family: "Source Code Pro", monospace; font-weight: 700;
+    display: grid; place-items: center; z-index: 1; font-size: 0.8rem;
+  }
+  .vaksin .isi-vaksin { border: 2px solid var(--garis); background: var(--kertas); border-radius: var(--radius); padding: 0.75rem 1rem; }
+  .vaksin .isi-vaksin strong { font-family: "Teachers", serif; font-size: 1.35rem; display: block; }
+  .vaksin .usia { font-family: "Source Code Pro", monospace; font-weight: 700; color: var(--accent-text); }
+
+  /* OBAT */
+  .grid-obat { display: grid; gap: 0.75rem; margin-top: 1rem; }
+  @media (min-width: 48rem) { .grid-obat { grid-template-columns: repeat(2, 1fr); } }
+  .obat {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    border: 2px solid var(--garis); background: var(--kertas);
+    border-radius: var(--radius); padding: 0.75rem 1rem;
+  }
+  .obat strong { font-family: "Teachers", serif; font-size: 1.25rem; }
+  .obat .dosis { color: var(--muted); font-size: 0.9rem; display: block; }
+  .status-obat {
+    font-family: "Source Code Pro", monospace; font-weight: 700; font-size: 0.8rem;
+    text-transform: uppercase; border: 2px solid var(--garis); border-radius: var(--radius);
+    padding: 0.25rem 0.5rem; white-space: nowrap;
+  }
+  .status-obat.tersedia { background: var(--accent-2); }
+  .status-obat.menipis { background: oklch(0.85 0.12 90); }
+  .status-obat.habis { background: var(--pop); color: #fff; border-color: var(--pop); }
+
+  /* KAKI */
+  .kaki {
+    max-width: 80rem; margin: 0 auto; padding: 2rem 1rem 4rem;
+    border-top: 3px solid var(--garis);
+  }
+  .kaki .stempel {
+    font-family: "Teachers", serif; font-size: 2.5rem; color: var(--pop);
+    border: 3px solid var(--pop); display: inline-block; padding: 0.25rem 1rem;
+    border-radius: var(--radius); transform: rotate(-4deg);
+    text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .kaki-teks { color: var(--muted); }
+  .stempel-jatuh {
+    position: fixed; left: 50%; top: 40%; z-index: 70; pointer-events: none;
+    font-family: "Teachers", serif; font-size: clamp(2.5rem, 10vw, 5rem); color: var(--pop);
+    border: 4px solid var(--pop); padding: 0.25rem 1.25rem; border-radius: var(--radius);
+    text-transform: uppercase; transform: translate(-50%, -50%) rotate(-8deg) scale(3);
+    opacity: 0;
+  }
+  .stempel-jatuh.jatuh { animation: slam 0.6s ease-out forwards; }
+  @keyframes slam {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(3); }
+    60% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(0.95); }
+    100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+}
+
+@layer gerak {
+  .reveal { opacity: 0; transform: translateY(24px); }
+  .reveal.tampil { opacity: 1; transform: translateY(0); transition: opacity 0.5s ease, transform 0.5s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; }
+    .marquee-track { animation: none !important; }
+    .stempel-jatuh.jatuh { animation: none; opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+  body.gerak-mati .reveal { opacity: 1; transform: none; }
+  body.gerak-mati .spotlight { display: none; }
+  body.gerak-mati .marquee-track { animation: none !important; }
+}
